@@ -58,6 +58,13 @@ function buildCharts(sample) {
         var labels = result.otu_labels;
         var values = result.sample_values;
 
+        // Variable to hold wash frequency in Gauge chart
+        var metadataArray = data.metadata.filter(object =>
+            object.id == sample
+        );
+        var metadataResults= metadataArray[0];
+        var wfreq = metadataResults.wfreq;
+
         // Bar Chart
         var trace1 = {
             x: values.slice(0,10).reverse(),
@@ -99,8 +106,64 @@ function buildCharts(sample) {
             showlegend: false,
         };
 
-        // Render Bubble char on 'bubble' ID
+        // Render Bubble chart on 'bubble' ID
         Plotly.newPlot("bubble", bubble_data, layout2);
+
+        // Gauge Chart
+        var trace3 = {
+            type: "pie",
+            showlegend: false,
+            hole: 0.5,
+            rotation: 90,
+            values: [100 / 9, 100 / 9, 100 / 9, 100 / 9, 100 / 9, 100 / 9, 100 / 9, 100 / 9, 100 / 9, 100],
+            text:["0-1","1-2","2-3","3-4","4-5","5-6","6-7","7-8","8-9",""],
+            direction: "clockwise",
+            textinfo: "text",
+            textposition: "inside",
+            marker: {
+              colors: ["rgba(255,238,153,0.6)","rgba(255,230,102, 0.6)","rgba(255, 255,102, 0.6)","rgba(255,255,51, 0.6)",
+              "rgba(255,255,1, 0.6)","rgba(179,255,102, 0.6)",
+              "rgba(106,255,77, 0.6)",
+              "rgba(43,255,0, 0.6)",
+              "rgba(0,179,0, 0.6)","white"]
+        
+            },
+            labels:["0-1","1-2","2-3","3-4","4-5","5-6","6-7","7-8","8-9",""],
+            hoverinfo: "label"
+            };
+        
+        var degrees =(wfreq+0.5)*20, radius = 2;
+        var radians = degrees * Math.PI /180;
+        var x_val = -1 * radius * Math.cos(radians);
+        var y_val = radius * Math.sin(radians);
+        
+        var theta = degrees;
+        var r = radius;
+        var x_head = r * Math.cos(Math.PI/180*theta);
+        var y_head = r * Math.sin(Math.PI/180*theta);  
+        
+        var layout3 = {
+            shapes:[{
+              type: 'line',
+              x0: 0.5,
+              y0: 0.5,
+              x1: (x_val*0.11)+0.5,
+              y1: (y_val*0.11)+0.5,
+              line: {
+                color: 'red',
+                width: 7
+              }
+            }],
+            title: "Belly Button Washing Frequency<br>Scrubs per Week",
+            xaxis: {visible: false, range: [-1, 1]},
+            yaxis: {visible: false, range: [-1,1]},
+            };
+        
+        var gauge_data = [trace3];
+        
+        // Render the Gauge Chart
+        Plotly.newPlot('gauge', gauge_data, layout3);
+        
     });
 }
 
